@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\HelperController;
+use App\Http\Controllers\PurposeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VisitController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,12 +20,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('purposes', PurposeController::class);
+    Route::apiResource('contacts', ContactController::class);
+    Route::apiResource('visits', VisitController::class);
+
+    //options
+    Route::get('/managers', [HelperController::class, 'managers']);
+    Route::get('/states', [HelperController::class, 'states']);
 });

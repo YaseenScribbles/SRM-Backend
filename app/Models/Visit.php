@@ -16,4 +16,9 @@ class Visit extends Model
         'response',
         'user_id'
     ];
+
+    public function visit_images()
+    {
+        return $this->hasMany(VisitImage::class)->select('visit_id','image_path');
+    }
 }

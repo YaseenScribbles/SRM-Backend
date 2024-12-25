@@ -16,7 +16,10 @@ class AuthController extends Controller
 
         $isValidUser = Auth::attempt($data);
 
-        if ($isValidUser){
+        if ($isValidUser) {
+            /**
+             * @var \App\Models\User $user
+             */
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json([
@@ -25,12 +28,15 @@ class AuthController extends Controller
                 'token' => $token
             ]);
         } else {
-            return response()->json('Invalid credentials', 401);
+            return response()->json(['message' => 'Invalid credentials'], 400);
         }
     }
 
     public function logout(Request $request)
     {
+        /**
+         * @var \App\Models\User $user
+         */
         $user  = Auth::user();
 
         $user->tokens()->delete();
@@ -38,5 +44,4 @@ class AuthController extends Controller
             'message' => 'Successfully logged out.'
         ]);
     }
-
 }
