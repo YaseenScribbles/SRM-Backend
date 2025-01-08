@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\HelperController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PurposeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VisitController;
@@ -32,8 +33,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('purposes', PurposeController::class);
     Route::apiResource('contacts', ContactController::class);
     Route::apiResource('visits', VisitController::class);
+    Route::apiResource('orders', OrderController::class);
 
     //options
     Route::get('/managers', [HelperController::class, 'managers']);
     Route::get('/states', [HelperController::class, 'states']);
+    Route::get('/brands', [HelperController::class, 'brands']);
+    Route::get('/styles', [HelperController::class, 'styles']);
+    Route::get('/sizes', [HelperController::class, 'sizes']);
 });
