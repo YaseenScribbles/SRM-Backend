@@ -41,4 +41,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/brands', [HelperController::class, 'brands']);
     Route::get('/styles', [HelperController::class, 'styles']);
     Route::get('/sizes', [HelperController::class, 'sizes']);
+    Route::get('/order-pdf/{order}', [HelperController::class, 'order_pdf']);
 });
