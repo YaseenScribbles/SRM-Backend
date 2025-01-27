@@ -131,4 +131,6 @@ return [
         ],
     ],
 
+    'company_email' => env('MAIL_TO_COMPANY'),
+
 ];

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Contact extends Model
+class Distributor extends Model
 {
     use HasFactory;
 
@@ -16,10 +16,10 @@ class Contact extends Model
         'district',
         'state_id',
         'phone',
+        'email',
         'pincode',
         'active',
         'user_id',
-        'email',
-        'distributor_id'
     ];
+
 }

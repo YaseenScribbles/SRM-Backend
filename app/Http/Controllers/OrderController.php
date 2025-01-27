@@ -49,7 +49,7 @@ class OrderController extends Controller
             }
             DB::commit();
 
-            return response()->json(['message' => 'Order created successfully']);
+            return response()->json(['message' => 'Order created successfully', 'id' => $order->id]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['message' => $th->getMessage()]);
@@ -95,7 +95,7 @@ class OrderController extends Controller
             }
             DB::commit();
 
-            return response()->json(['message' => 'Order updated successfully']);
+            return response()->json(['message' => 'Order updated successfully', 'id' => $order->id]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json(['message' => $th->getMessage()]);

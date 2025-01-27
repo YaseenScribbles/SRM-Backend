@@ -15,9 +15,10 @@ class ContactController extends Controller
     public function index()
     {
         $sql = "select c.id, c.name, c.address, c.city, c.district, s.name [state],
-        c.phone, c.pincode
+        c.phone, c.pincode, c.email, d.name [distributor]
         from contacts c
-        inner join states s on c.state_id = s.id";
+        inner join states s on c.state_id = s.id
+        left join distributors d on d.id = c.distributor_id";
 
         $contacts = DB::select($sql);
         return response()->json(compact('contacts'));

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreContactRequest extends FormRequest
+class UpdateDistributorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,16 +22,16 @@ class StoreContactRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|unique:contacts,name',
+            'name' => 'required|string|unique:distributors,name,' . $this->route('distributor.id'),
             'address' => 'nullable|string',
-            'city' => 'nullable|string' ,
+            'city' => 'nullable|string',
             'district' => 'nullable|string',
             'state_id' => 'required|numeric|exists:states,id',
             'phone' => 'nullable|string',
+            'email' => 'required|email|unique:distributors,email,' . $this->route('distributor.id'),
             'pincode' => 'nullable|string|size:6',
-            'user_id' => 'required|numeric|exists:users,id',
-            'email' => 'nullable|email',
-            'distributor_id' => 'nullable|exists:distributors,id'
+            'active' => 'nullable|boolean',
+            'user_id' => 'required|numeric|exists:users,id'
         ];
     }
 }

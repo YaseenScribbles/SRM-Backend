@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contact;
+use App\Models\Distributor;
 use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class HelperController extends Controller
 {
@@ -84,6 +89,51 @@ class HelperController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['message' => $th->getMessage()], 400);
+        }
+    }
+
+    public function sendMailOrderPDF(Request $request)
+    {
+        $request->validate([
+            'pdf' => 'required|file|mimes:pdf',
+            'id' => 'required|exists:orders,id'
+        ]);
+
+        try {
+            //code...
+            $order = Order::find($request->id);
+            $qty = OrderItem::where('order_id', $order->id)->sum('qty');
+            $contact = Contact::find($order->contact_id);
+            $emails = [];
+
+            array_push($emails, config('mail.company_email'));
+
+            if ($contact->email) {
+                array_push($emails, $contact->email);
+            }
+
+            if ($contact->distributor_id) {
+                $distributor = Distributor::find($contact->distributor_id);
+                array_push($emails, $distributor->email);
+            }
+
+            $file = $request->file('pdf');
+            $path = $file->store('temp_pdfs');
+
+            $attachmentName = "Order_{$order->id}";
+
+            Mail::send('emails.order_confirmation', ['order' => $order, 'qty' => $qty], function ($message) use ($path, $emails, $order, $attachmentName) {
+                $message->to($emails)
+                    ->subject("Order Confirmation: #{$order->id}")
+                    ->attach(storage_path("app/{$path}"), ['as' => $attachmentName, 'mime' => 'application/pdf']);
+            });
+
+            Storage::delete($path);
+
+            return response()->json(['message' => 'Email sent successfully']);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['message' => $th->getMessage()]);
         }
     }
 }

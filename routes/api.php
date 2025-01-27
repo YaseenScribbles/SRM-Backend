@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\HelperController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PurposeController;
@@ -34,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('contacts', ContactController::class);
     Route::apiResource('visits', VisitController::class);
     Route::apiResource('orders', OrderController::class);
+    Route::apiResource('distributors', DistributorController::class);
 
     //options
     Route::get('/managers', [HelperController::class, 'managers']);
@@ -42,4 +44,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/styles', [HelperController::class, 'styles']);
     Route::get('/sizes', [HelperController::class, 'sizes']);
     Route::get('/order-pdf/{order}', [HelperController::class, 'order_pdf']);
+    Route::post('/email-pdf', [HelperController::class, 'sendMailOrderPDF']);
 });
