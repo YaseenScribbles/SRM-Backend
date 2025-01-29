@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendOrderPDFMail;
 use App\Models\Contact;
 use App\Models\Distributor;
 use App\Models\Order;
@@ -120,15 +121,7 @@ class HelperController extends Controller
             $file = $request->file('pdf');
             $path = $file->store('temp_pdfs');
 
-            $attachmentName = "Order_{$order->id}";
-
-            Mail::send('emails.order_confirmation', ['order' => $order, 'qty' => $qty], function ($message) use ($path, $emails, $order, $attachmentName) {
-                $message->to($emails)
-                    ->subject("Order Confirmation: #{$order->id}")
-                    ->attach(storage_path("app/{$path}"), ['as' => $attachmentName, 'mime' => 'application/pdf']);
-            });
-
-            Storage::delete($path);
+            SendOrderPDFMail::dispatch($order, $qty, $emails, $path);
 
             return response()->json(['message' => 'Email sent successfully']);
         } catch (\Throwable $th) {
