@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\AutoIncrementId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Contact extends Model
 {
     use HasFactory;
+    use AutoIncrementId;
 
     protected $fillable = [
         'name',
@@ -22,4 +24,7 @@ class Contact extends Model
         'email',
         'distributor_id'
     ];
+
+    public $incrementing = false; // Disable default auto-increment
+    protected $keyType = 'int'; // Ensure ID remains an integer
 }

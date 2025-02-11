@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\AutoIncrementId;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
     use HasFactory;
+    use AutoIncrementId;
 
     protected $fillable = [
         'contact_id',
@@ -19,4 +21,7 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public $incrementing = false; // Disable default auto-increment
+    protected $keyType = 'int'; // Ensure ID remains an integer
 }

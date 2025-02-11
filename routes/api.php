@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\HelperController;
 use App\Http\Controllers\OrderController;
@@ -45,4 +46,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sizes', [HelperController::class, 'sizes']);
     Route::get('/order-pdf/{order}', [HelperController::class, 'order_pdf']);
     Route::post('/email-pdf', [HelperController::class, 'sendMailOrderPDF']);
+    Route::get('/user-role-users', [HelperController::class, 'userRoleUsers']);
+    Route::get('/dashboard', [DashboardController::class, 'dashboard']);
 });

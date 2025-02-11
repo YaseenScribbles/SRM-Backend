@@ -22,6 +22,21 @@ class HelperController extends Controller
         return response()->json(compact('managers'));
     }
 
+    public function userRoleUsers()
+    {
+        $user_id = auth()->user()->id;
+        $role = auth()->user()->role;
+        if ($role == 'manager') {
+            $sql = "select id, name from users where manager_id = $user_id  order by name";
+        } elseif ($role == 'admin') {
+            $sql = "select id, name from users order by name";
+        } else {
+            $sql = "select id, name from users where id = $user_id";
+        }
+        $users = DB::select($sql);
+        return response()->json(compact('users'));
+    }
+
     public function states()
     {
         $sql = "select id, name from states order by name";
