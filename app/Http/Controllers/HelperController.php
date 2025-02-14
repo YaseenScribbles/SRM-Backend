@@ -7,6 +7,8 @@ use App\Models\Contact;
 use App\Models\Distributor;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
+use App\Models\UserRight;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -143,5 +145,67 @@ class HelperController extends Controller
             //throw $th;
             return response()->json(['message' => $th->getMessage()]);
         }
+    }
+
+    public function userRights(int $id)
+    {
+        $userRightsSql = "select m.id [menu_id], m.[name] [menu], ur.[create], ur.[view], ur.[update], ur.[delete], ur.[print]
+        from menus m
+        left join user_rights ur on m.id = ur.menu_id and ur.user_id = $id";
+
+        $name = User::find($id)->name;
+
+        $userRights = DB::select($userRightsSql);
+        return response()->json(compact('userRights', 'name'));
+    }
+
+    public function updateUserRights($id, Request $request)
+    {
+
+        $request->validate([
+            'userRights' => 'required|array',
+            'userRights.*.menu_id' => 'required|exists:menus,id',
+            'userRights.*.create' => 'required|boolean',
+            'userRights.*.view' => 'required|boolean',
+            'userRights.*.update' => 'required|boolean',
+            'userRights.*.delete' => 'required|boolean',
+            'userRights.*.print' => 'required|boolean',
+        ]);
+
+        try {
+            //code...
+            DB::beginTransaction();
+
+            //remove old rights
+            DB::statement("delete from user_rights where user_id = $id");
+
+            $userRights = $request->userRights;
+
+            foreach ($userRights as $key => $value) {
+                UserRight::create([
+                    'menu_id' => $value['menu_id'],
+                    'user_id' => $id,
+                    'create' => $value['create'],
+                    'view' => $value['view'],
+                    'update' => $value['update'],
+                    'delete' => $value['delete'],
+                    'print' => $value['print'],
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'User rights updated']);
+        } catch (\Throwable $th) {
+            //throw $th;
+            DB::rollBack();
+            return response()->json(['message' => $th->getMessage()]);
+        }
+    }
+
+    public function menus()
+    {
+        $menusSql = "select id, name from menus";
+        $menus = DB::select($menusSql);
+        return response()->json(compact('menus'));
     }
 }

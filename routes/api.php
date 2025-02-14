@@ -48,4 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/email-pdf', [HelperController::class, 'sendMailOrderPDF']);
     Route::get('/user-role-users', [HelperController::class, 'userRoleUsers']);
     Route::get('/dashboard', [DashboardController::class, 'dashboard']);
+    Route::get('/user-rights/{id}',[HelperController::class, 'userRights']);
+    Route::put('/user-rights/{id}', [HelperController::class, 'updateUserRights']);
+    Route::get('/menus', [HelperController::class,'menus']);
 });
