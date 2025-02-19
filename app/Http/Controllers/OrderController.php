@@ -7,7 +7,6 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -17,14 +16,31 @@ class OrderController extends Controller
     public function index()
     {
 
-        $sql = "select o.id, convert(date,o.created_at) [date], c.name [contact], o.remarks, u.name [user], sum(oi.qty) [quantity]
-        from orders o
-        inner join order_items oi on oi.order_id = o.id
-        inner join contacts c on c.id = o.contact_id
-        inner join users u on u.id = o.user_id
-        group by o.id, c.name, o.remarks, u.name, o.created_at";
+        // $sql = "select o.id, convert(date,o.created_at) [date], c.name [contact], o.remarks, u.name [user], sum(oi.qty) [quantity]
+        // from orders o
+        // inner join order_items oi on oi.order_id = o.id
+        // inner join contacts c on c.id = o.contact_id
+        // inner join users u on u.id = o.user_id
+        // group by o.id, c.name, o.remarks, u.name, o.created_at";
 
-        $orders = DB::select($sql);
+        // $orders = DB::select($sql);
+
+        $orders = Order::query()
+            ->from('orders as o')
+            ->join('order_items as oi', 'oi.order_id', '=', 'o.id')
+            ->join('contacts as c', 'c.id', '=', 'o.contact_id')
+            ->join('users as u', 'u.id', '=', 'o.user_id')
+            ->select(
+                'o.id',
+                DB::raw("convert(varchar, o.created_at, 34) as [date]"),
+                'c.name as contact',
+                'o.remarks',
+                'u.name as user',
+                DB::raw('sum(oi.qty) as [quantity]')
+            )
+            ->groupBy('o.id', 'c.name', 'o.remarks', 'u.name', DB::raw("convert(varchar, o.created_at, 34)"))
+            ->get();
+
         return response()->json(compact('orders'));
     }
 

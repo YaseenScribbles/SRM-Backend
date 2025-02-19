@@ -16,12 +16,29 @@ class VisitController extends Controller
      */
     public function index()
     {
-        $sql = "select v.id, c.name [contact], p.name [purpose], v.description, v.response
-        from visits v
-        inner join contacts c on c.id = v.contact_id
-        inner join purposes p on p.id = v.purpose_id";
+        // $sql = "select v.id, c.name [contact], p.name [purpose], v.description, v.response
+        // from visits v
+        // inner join contacts c on c.id = v.contact_id
+        // inner join purposes p on p.id = v.purpose_id";
 
-        $visits = DB::select($sql);
+        // $visits = DB::select($sql);
+
+        $visits = Visit::query()
+            ->from('visits as v')
+            ->join('contacts as c', 'c.id', '=', 'v.contact_id')
+            ->join('purposes as p', 'p.id', '=', 'v.purpose_id')
+            ->join('users as u', 'u.id', '=', 'v.user_id')
+            ->select(
+                'v.id',
+                DB::raw("convert(varchar, v.created_at, 34) as [date]"),
+                'c.name as contact',
+                'p.name as purpose',
+                'v.description',
+                'v.response',
+                'u.name as user'
+            )
+            ->get();
+
         return response()->json(compact('visits'));
     }
 

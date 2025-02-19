@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -28,7 +27,6 @@ class DashboardController extends Controller
         }
         $user_ids = DB::select($sql);
         $idString = collect($user_ids)->pluck('id')->implode(',');
-        Log::info($idString);
 
         $visitsSql = "select c.name [contact], p.name [purpose], u.name [user],v.created_at [time]
         from visits v
@@ -104,12 +102,27 @@ class DashboardController extends Controller
 
         $stateWiseSql .= " group by s.name order by [qty] desc";
 
+        $districtWiseSql = "select c.district, count(distinct o.id) orders, sum(oi.qty) [qty]
+        from orders o
+        inner join order_items oi on oi.order_id = o.id
+        inner join contacts c on o.contact_id = c.id
+        where convert(date,o.created_at) between '$from_date' and '$to_date'";
+
+        if ($user_id) {
+            $districtWiseSql .= " and o.user_id = $user_id";
+        } else {
+            $districtWiseSql .= " and o.user_id in ($idString)";
+        }
+
+        $districtWiseSql .= " group by c.district order by [qty] desc";
+
         $visits = DB::select($visitsSql);
         $orders = DB::select($ordersSql);
         $count = DB::select($countSql);
         $orderItems = DB::select($orderItemsSql);
         $states = DB::select($stateWiseSql);
+        $districts = DB::select($districtWiseSql);
 
-        return response()->json(compact('visits', 'orders', 'count', 'orderItems', 'states'));
+        return response()->json(compact('visits', 'orders', 'count', 'orderItems', 'states', 'districts'));
     }
 }
