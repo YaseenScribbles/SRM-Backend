@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Visit;
 use App\Http\Requests\StoreVisitRequest;
 use App\Http\Requests\UpdateVisitRequest;
+use App\Models\Scopes\UserScope;
 use App\Models\VisitImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -77,21 +78,23 @@ class VisitController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Visit $visit)
+    public function show(int $visit)
     {
+        $visit = Visit::withoutGlobalScope(UserScope::class)->find($visit);
         return $visit->load('visit_images');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVisitRequest $request, Visit $visit)
+    public function update(UpdateVisitRequest $request, int $visit)
     {
         $request->validated();
         try {
             DB::beginTransaction();
 
             $masterData = $request->except(['visit_images', 'existing_images']);
+            $visit = Visit::withoutGlobalScope(UserScope::class)->find($visit);
             $visit->update($masterData);
 
             // Get existing images from the request
@@ -138,10 +141,11 @@ class VisitController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Visit $visit)
+    public function destroy(int $visit)
     {
         try {
             DB::beginTransaction();
+            $visit = Visit::withoutGlobalScope(UserScope::class)->find($visit);
             VisitImage::where('visit_id', $visit->id)->delete();
             $visit->delete();
             DB::commit();

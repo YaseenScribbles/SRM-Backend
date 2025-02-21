@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
+use App\Models\Scopes\UserScope;
 
 class ContactController extends Controller
 {
@@ -20,22 +21,22 @@ class ContactController extends Controller
         // left join distributors d on d.id = c.distributor_id";
 
         $contacts = Contact::query()
-        ->from('contacts as c')
-        ->join('states as s', 'c.state_id', '=', 's.id')
-        ->leftJoin('distributors as d', 'd.id', '=', 'c.distributor_id')
-        ->select(
-            'c.id',
-            'c.name',
-            'c.address',
-            'c.city',
-            'c.district',
-            's.name as state',
-            'c.phone',
-            'c.pincode',
-            'c.email',
-            'd.name as distributor'
-        )
-        ->get();
+            ->from('contacts as c')
+            ->join('states as s', 'c.state_id', '=', 's.id')
+            ->leftJoin('distributors as d', 'd.id', '=', 'c.distributor_id')
+            ->select(
+                'c.id',
+                'c.name',
+                'c.address',
+                'c.city',
+                'c.district',
+                's.name as state',
+                'c.phone',
+                'c.pincode',
+                'c.email',
+                'd.name as distributor'
+            )
+            ->get();
 
         // $id = Auth::user()->id;
         // $role = Auth::user()->role;
@@ -75,18 +76,20 @@ class ContactController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Contact $contact)
+    public function show(int $contact)
     {
+        $contact = Contact::withoutGlobalScope(UserScope::class)->find($contact);
         return $contact;
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateContactRequest $request, Contact $contact)
+    public function update(UpdateContactRequest $request, int $contact)
     {
         $data = $request->validated();
         try {
+            $contact = Contact::withoutGlobalScope(UserScope::class)->find($contact);
             $contact->update($data);
             return response()->json(['message' => 'Contact updated successfully']);
         } catch (\Throwable $th) {
@@ -97,9 +100,10 @@ class ContactController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Contact $contact)
+    public function destroy(int $contact)
     {
         try {
+            $contact = Contact::withoutGlobalScope(UserScope::class)->find($contact);
             $contact->delete();
             return response()->json(['message' => 'Contact deleted successfully']);
         } catch (\Throwable $th) {

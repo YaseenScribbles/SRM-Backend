@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\OrderItem;
+use App\Models\Scopes\UserScope;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -75,8 +76,9 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Order $order)
+    public function show(int $order)
     {
+        $order = Order::withoutGlobalScope(UserScope::class)->find($order);
         $orderMasterSql = "select contact_id, remarks from orders where id = $order->id";
         $orderMaster = DB::select($orderMasterSql);
 
@@ -91,13 +93,14 @@ class OrderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateOrderRequest $request, Order $order)
+    public function update(UpdateOrderRequest $request, int $order)
     {
         $request->validated();
         try {
             $masterData = $request->except('order_items');
             $details = $request->only('order_items');
             DB::beginTransaction();
+            $order = Order::withoutGlobalScope(UserScope::class)->find($order);
             $order->update($masterData);
             OrderItem::where('order_id', $order->id)->delete();
 
@@ -121,10 +124,11 @@ class OrderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Order $order)
+    public function destroy(int $order)
     {
         try {
             DB::beginTransaction();
+            $order = Order::withoutGlobalScope(UserScope::class)->find($order);
             OrderItem::where('order_id', $order->id)->delete();
             $order->delete();
             DB::commit();
