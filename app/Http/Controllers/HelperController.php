@@ -7,6 +7,7 @@ use App\Models\Contact;
 use App\Models\Distributor;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Scopes\UserScope;
 use App\Models\User;
 use App\Models\UserRight;
 use Illuminate\Http\Request;
@@ -76,10 +77,13 @@ class HelperController extends Controller
         return response()->json(compact('sizes'));
     }
 
-    public function order_pdf(Order $order)
+    public function order_pdf(int $orderId)
     {
         try {
             //code...
+
+            $order = Order::withoutGlobalScope(UserScope::class)->find($orderId);
+
             $masterSql = "select o.id,
             convert(varchar, o.created_at, 34) [date],
             c.name [contact],
@@ -119,9 +123,9 @@ class HelperController extends Controller
 
         try {
             //code...
-            $order = Order::find($request->id);
+            $order = Order::withoutGlobalScope(UserScope::class)->find($request->id);
             $qty = OrderItem::where('order_id', $order->id)->sum('qty');
-            $contact = Contact::find($order->contact_id);
+            $contact = Contact::withoutGlobalScope(UserScope::class)->find($order->contact_id);
             $emails = [];
 
             array_push($emails, config('mail.company_email'));
