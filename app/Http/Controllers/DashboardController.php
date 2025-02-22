@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\VisitImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
@@ -116,6 +118,28 @@ class DashboardController extends Controller
 
         $districtWiseSql .= " group by c.district order by [qty] desc";
 
+        $visitImagesSql = VisitImage::query()
+            ->from('visit_images as vi')
+            ->join('visits as v', 'v.id', '=', 'vi.visit_id')
+            ->join('contacts as c', 'c.id', '=', 'v.contact_id')
+            ->join('users as u', 'u.id', '=', 'vi.user_id')
+            ->select(
+                'vi.image_path',
+                DB::raw("u.name as [user]"),
+                DB::raw("convert(varchar, vi.created_at, 0) as [time]"),
+                DB::raw("c.name + ', ' + c.district as [location]")
+                )
+            ->whereRaw("CONVERT(date, vi.created_at) BETWEEN ? AND ?", [$from_date, $to_date]);
+
+        if ($user_id) {
+            $visitImagesSql->where('vi.user_id', $user_id);
+        } else {
+            $visitImagesSql->whereIn('vi.user_id', array_map('intval', explode(",", $idString)));
+        }
+
+        Log::info($visitImagesSql->toSql());
+        $visitImages = $visitImagesSql->get();
+
         $visits = DB::select($visitsSql);
         $orders = DB::select($ordersSql);
         $count = DB::select($countSql);
@@ -123,6 +147,6 @@ class DashboardController extends Controller
         $states = DB::select($stateWiseSql);
         $districts = DB::select($districtWiseSql);
 
-        return response()->json(compact('visits', 'orders', 'count', 'orderItems', 'states', 'districts'));
+        return response()->json(compact('visits', 'orders', 'count', 'orderItems', 'states', 'districts', 'visitImages'));
     }
 }
