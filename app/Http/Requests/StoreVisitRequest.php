@@ -30,7 +30,7 @@ class StoreVisitRequest extends FormRequest
 
             //images
             'visit_images' => 'required|array',
-            'visit_images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'visit_images.*' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ];
     }
 }

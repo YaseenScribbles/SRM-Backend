@@ -29,7 +29,7 @@ class UpdateVisitRequest extends FormRequest
             'user_id' => 'required|numeric|exists:users,id',
 
             //images
-            'visit_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'visit_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
 
             // Existing images
             'existing_images' => 'nullable|array',
